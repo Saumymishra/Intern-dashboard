@@ -6,38 +6,56 @@ const Leaderboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Mock leaderboard data - sorted by totalDonations in descending order
-    const mockData = [
-      { name: "Priya", referralCode: "priya2025", totalDonations: 3000 },
-      { name: "Somu", referralCode: "somu2025", totalDonations: 2500 },
-      { name: "Rahul", referralCode: "rahul2025", totalDonations: 1800 },
-      { name: "Ananya", referralCode: "ananya2025", totalDonations: 1500 },
-      { name: "Karan", referralCode: "karan2025", totalDonations: 1200 },
-      { name: "Meera", referralCode: "meera2025", totalDonations: 950 },
-      { name: "Arjun", referralCode: "arjun2025", totalDonations: 800 },
-      { name: "Kavya", referralCode: "kavya2025", totalDonations: 650 }
-    ];
-
-    setLeaderboardData(mockData);
+    // ✅ Fetch leaderboard data from backend
+    fetch("https://intern-dashboard-6gz7.onrender.com/api/leaderboard")
+      .then((res) => res.json())
+      .then((data) => {
+        // Sort by donations (highest first)
+        const sortedData = data.sort((a, b) => b.totalDonations - a.totalDonations);
+        setLeaderboardData(sortedData);
+      })
+      .catch((err) => {
+        console.error("Error fetching leaderboard:", err);
+        setLeaderboardData([]);
+      });
   }, []);
 
   const getRankIcon = (rank) => {
     switch (rank) {
-      case 1: return "🥇";
-      case 2: return "🥈"; 
-      case 3: return "🥉";
-      default: return `#${rank}`;
+      case 1:
+        return "🥇";
+      case 2:
+        return "🥈";
+      case 3:
+        return "🥉";
+      default:
+        return `#${rank}`;
     }
   };
 
   const getRankColor = (rank) => {
     switch (rank) {
-      case 1: return "from-yellow-400 to-yellow-600";
-      case 2: return "from-gray-400 to-gray-600";
-      case 3: return "from-amber-600 to-amber-800";
-      default: return "from-indigo-500 to-purple-600";
+      case 1:
+        return "from-yellow-400 to-yellow-600";
+      case 2:
+        return "from-gray-400 to-gray-600";
+      case 3:
+        return "from-amber-600 to-amber-800";
+      default:
+        return "from-indigo-500 to-purple-600";
     }
   };
+
+  if (leaderboardData.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin h-10 w-10 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto"></div>
+          <p className="mt-3 text-gray-600">Loading Leaderboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -132,7 +150,7 @@ const Leaderboard = () => {
           <div className="px-6 py-4 bg-gradient-to-r from-indigo-500 to-purple-600">
             <h3 className="text-xl font-bold text-white">Full Leaderboard</h3>
           </div>
-          
+
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
@@ -150,7 +168,9 @@ const Leaderboard = () => {
                     <tr key={index} className="hover:bg-gray-50 transition duration-150">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className={`w-10 h-10 rounded-xl bg-gradient-to-r ${getRankColor(rank)} flex items-center justify-center text-white font-bold mr-3`}>
+                          <div
+                            className={`w-10 h-10 rounded-xl bg-gradient-to-r ${getRankColor(rank)} flex items-center justify-center text-white font-bold mr-3`}
+                          >
                             {rank <= 3 ? getRankIcon(rank) : rank}
                           </div>
                         </div>
